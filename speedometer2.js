@@ -14,11 +14,6 @@ var iCurrentSpeed = 50,
     job = null;
 
 
-function drawTacho() {
-    draw(0);
-}
-
-
 function degToRad(angle) {
     // Degrees to radians
     return ((angle * Math.PI) / 180);
