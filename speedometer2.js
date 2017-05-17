@@ -64,60 +64,16 @@ function createLine(fromX, fromY, toX, toY, fillStyle, lineWidth, alpha) {
 }
 
 
-function drawInnerMetallicArc(options) {
-    /* Draw the metallic border of the speedometer
-     * Inner white area
-     */
 
-    options.ctx.beginPath();
-
-    // White
-    options.ctx.fillStyle = "rgb(255,255,255)";
-
-    // Outer circle (subtle edge in the grey)
-    options.ctx.arc(options.center.X,
-        options.center.Y,
-        (options.radius / 100) * 90,
-        0,
-        Math.PI,
-        true);
-
-    options.ctx.fill();
-}
-
-function drawMetallicArc(options) {
-    /* Draw the metallic border of the speedometer
-     * by drawing two semi-circles, one over lapping
-     * the other with a bot of alpha transparency
-     */
-
-    //drawOuterMetallicArc(options);
-    drawInnerMetallicArc(options);
-}
 
 function drawBackground(options) {
-    /* Black background with alphs transparency to
-     * blend the edges of the metallic edge and
-     * black background
-     */
     var i = 0;
+    options.ctx.globalAlpha = 1;
+    options.ctx.fillStyle = "rgb(15,32,50)";
 
-    options.ctx.globalAlpha = 0.2;
-    options.ctx.fillStyle = "rgb(0,0,0)";
+    options.ctx.rect(0, 0, 500, 500);
 
-    // Draw semi-transparent circles
-    for (i = 170; i < 180; i++) {
-        options.ctx.beginPath();
-
-        options.ctx.arc(options.center.X,
-            options.center.Y,
-            i,
-            0,
-            Math.PI,
-            true);
-
-        options.ctx.fill();
-    }
+    options.ctx.fill();
 }
 
 function applyDefaultContextSettings(options) {
@@ -126,18 +82,18 @@ function applyDefaultContextSettings(options) {
      */
 
     options.ctx.lineWidth = 2;
-    options.ctx.globalAlpha = 0.5;
+    options.ctx.globalAlpha = 1;
     options.ctx.strokeStyle = "rgb(255, 255, 255)";
     options.ctx.fillStyle = 'rgb(255,255,255)';
 }
 
-function drawSmallTickMarks(options) {
+function drawLargeTickMarks(options) {
     /* The small tick marks against the coloured
      * arc drawn every 5 mph from 10 degrees to
      * 170 degrees.
      */
 
-    var tickvalue = options.levelRadius - 8,
+    var tickvalue = options.levelRadius + 50,
         iTick = 0,
         gaugeOptions = options.gaugeOptions,
         iTickRad = 0,
@@ -153,8 +109,8 @@ function drawSmallTickMarks(options) {
 
     applyDefaultContextSettings(options);
 
-    // Tick every 20 degrees (small ticks)
-    for (iTick = 10; iTick < 180; iTick += 20) {
+    // Tick every 20 degrees (big ticks)
+    for (iTick = -65; iTick < 260; iTick += 30) {
 
         iTickRad = degToRad(iTick);
 
@@ -176,7 +132,7 @@ function drawSmallTickMarks(options) {
         toY = (gaugeOptions.center.Y - gaugeOptions.radius) + innerTickY;
 
         // Create a line expressed in JSON
-        line = createLine(fromX, fromY, toX, toY, "rgb(127,127,127)", 3, 0.6);
+        line = createLine(fromX, fromY, toX, toY, "rgb(189,201,197)", 3, 1);
 
         // Draw the line
         drawLine(options, line);
@@ -184,13 +140,13 @@ function drawSmallTickMarks(options) {
     }
 }
 
-function drawLargeTickMarks(options) {
+function drawSmallTickMarks(options) {
     /* The large tick marks against the coloured
      * arc drawn every 10 mph from 10 degrees to
      * 170 degrees.
      */
 
-    var tickvalue = options.levelRadius - 8,
+    var tickvalue = options.levelRadius,
         iTick = 0,
         gaugeOptions = options.gaugeOptions,
         iTickRad = 0,
@@ -206,10 +162,10 @@ function drawLargeTickMarks(options) {
 
     applyDefaultContextSettings(options);
 
-    tickvalue = options.levelRadius - 2;
+    tickvalue = options.levelRadius + 50;
 
-    // 10 units (major ticks)
-    for (iTick = 20; iTick < 180; iTick += 20) {
+    // 10 units (small ticks)
+    for (iTick = -65; iTick < 230; iTick += 6) {
 
         iTickRad = degToRad(iTick);
 
@@ -219,19 +175,20 @@ function drawLargeTickMarks(options) {
          * coloured arc and continueing towards the outer edge
          * in the direction from the center of the gauge.
          */
-
+        //angle of ticks
         onArchX = gaugeOptions.radius - (Math.cos(iTickRad) * tickvalue);
         onArchY = gaugeOptions.radius - (Math.sin(iTickRad) * tickvalue);
-        innerTickX = gaugeOptions.radius - (Math.cos(iTickRad) * gaugeOptions.radius);
-        innerTickY = gaugeOptions.radius - (Math.sin(iTickRad) * gaugeOptions.radius);
-
+        //length of ticks
+        innerTickX = gaugeOptions.radius - (Math.cos(iTickRad) * gaugeOptions.radius) * 1.1;
+        innerTickY = gaugeOptions.radius - (Math.sin(iTickRad) * gaugeOptions.radius) * 1.1;
+        //angle
         fromX = (options.center.X - gaugeOptions.radius) + onArchX;
         fromY = (gaugeOptions.center.Y - gaugeOptions.radius) + onArchY;
         toX = (options.center.X - gaugeOptions.radius) + innerTickX;
         toY = (gaugeOptions.center.Y - gaugeOptions.radius) + innerTickY;
 
         // Create a line expressed in JSON
-        line = createLine(fromX, fromY, toX, toY, "rgb(127,127,127)", 3, 0.6);
+        line = createLine(fromX, fromY, toX, toY, "rgb(127,127,127)", 3, 1);
 
         // Draw the line
         drawLine(options, line);
@@ -240,8 +197,8 @@ function drawLargeTickMarks(options) {
 
 function drawTicks(options) {
     /* Two tick in the coloured arc!
-     * Small ticks every 5
-     * Large ticks every 10
+     * Small ticks every 4°
+     * Large ticks every 20°
      */
     drawSmallTickMarks(options);
     drawLargeTickMarks(options);
@@ -261,16 +218,19 @@ function drawTextMarkers(options) {
     applyDefaultContextSettings(options);
 
     // Font styling
-    options.ctx.font = 'italic 10px sans-serif';
+    options.ctx.fillStyle = "#F2FDFD";
+    options.ctx.font = 'italic 16px sans-serif';
     options.ctx.textBaseline = 'top';
+    options.ctx.strokeStyle = "#F2FDFD";
+
 
     options.ctx.beginPath();
 
     // Tick every 20 (small ticks)
-    for (iTick = 10; iTick < 180; iTick += 20) {
+    for (iTick = -65; iTick < 260; iTick += 30) {
 
-        innerTickX = gaugeOptions.radius - (Math.cos(degToRad(iTick)) * gaugeOptions.radius);
-        innerTickY = gaugeOptions.radius - (Math.sin(degToRad(iTick)) * gaugeOptions.radius);
+        innerTickX = gaugeOptions.radius - (Math.cos(degToRad(iTick)) * gaugeOptions.radius) * 0.85;
+        innerTickY = gaugeOptions.radius - (Math.sin(degToRad(iTick)) * gaugeOptions.radius) * 0.85;
 
         // Some cludging to center the values (TODO: Improve)
         if (iTick <= 10) {
@@ -289,8 +249,8 @@ function drawTextMarkers(options) {
             options.ctx.fillText(iTickToPrint, (options.center.X - gaugeOptions.radius - 12) + innerTickX + 10,
                 (gaugeOptions.center.Y - gaugeOptions.radius - 12) + innerTickY);
         } else {
-            options.ctx.fillText(iTickToPrint, (options.center.X - gaugeOptions.radius - 12) + innerTickX + 15,
-                (gaugeOptions.center.Y - gaugeOptions.radius - 12) + innerTickY + 5);
+            options.ctx.fillText(iTickToPrint, (options.center.X - gaugeOptions.radius - 20 ) + innerTickX + 10,
+                (gaugeOptions.center.Y - gaugeOptions.radius) - 12 + innerTickY);
         }
 
         // MPH increase by 10 every 20 degrees
@@ -300,49 +260,26 @@ function drawTextMarkers(options) {
     options.ctx.stroke();
 }
 
-function drawSpeedometerPart(options, alphaValue, strokeStyle, startPos) {
-    /* Draw part of the arc that represents
-     * the colour speedometer arc
-     */
-
-    options.ctx.beginPath();
-
-    options.ctx.globalAlpha = alphaValue;
-    options.ctx.lineWidth = 5;
-    options.ctx.strokeStyle = strokeStyle;
-
-    options.ctx.arc(options.center.X,
-        options.center.Y,
-        options.levelRadius,
-        Math.PI + (Math.PI / 360 * startPos),
-        0 - (Math.PI / 360 * 10),
-        false);
-
-    options.ctx.stroke();
-}
-
-function drawSpeedometerInnerSpeedArc(options) {
-    drawSpeedometerPart(options, 1.0, "rgb(117, 117,117)", 10);
-}
 
 function drawSpeedometerOuterSpeedArc(options) {
 
-    var green = "rgb(82, 240, 55)";
-    var yellow = "rgb(198, 111, 0)";
-    var red = "rgb(255, 0, 0)";
-    var color = green;
+    // var green = "rgb(82, 240, 55)";
+    var yellow = "rgb(244, 247, 74)";
+    //  var red = "rgb(255, 0, 0)";
+    var grey = "rgb(189,201,197)";
+    var color = grey;
     var iTargetSpeedAsAngle = convertTargetSpeedToAngle();
     var iTargetSpeedAsAngleRad = degToRad(iTargetSpeedAsAngle + 10);
     // var iSpeedAsAngle = convertSpeedToAngle(options);
     // var iSpeedAsAngleRad = degToRad(iSpeedAsAngle);
 
     if ((iTargetSpeed == Math.round(iCurrentSpeed))) {//||((iTargetSpeed < iCurrentSpeed+0.2) &&(iTargetSpeed > iCurrentSpeed-0.2))){
-        color = green;
+        color = grey;
     }
     else if (iTargetSpeed > iCurrentSpeed) {
-        color = yellow;
+        color = grey;
     } else if (iTargetSpeed <= iCurrentSpeed) {
-        color = red;
+        color = yellow;
     }
 
     options.ctx.beginPath();
@@ -368,6 +305,10 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
      * needle.
      */
     var i = 0;
+    var yellow = "rgb(244, 247, 74)";
+    var grey = "rgb(189,201,197)";
+    var color = grey;
+
 
     options.ctx.globalAlpha = alphaValue;
     options.ctx.lineWidth = 3;
@@ -375,6 +316,16 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
     options.ctx.fillStyle = fillStyle;
 
     // Draw several transparent circles with alpha
+
+    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {
+        color = grey;
+    }
+    else if (iTargetSpeed > iCurrentSpeed) {
+        color = grey;
+    } else if (iTargetSpeed <= iCurrentSpeed) {
+        color = yellow;
+    }
+
     for (i = 0; i < 30; i++) {
 
         options.ctx.beginPath();
@@ -425,6 +376,18 @@ function drawNeedle(options) {
     /* Draw the needle in a nice read colour at the
      * angle that represents the options.speed value.
      */
+    var yellow = "rgb(244, 247, 74)";
+    var grey = "rgb(189,201,197)";
+    var color = grey;
+
+    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {
+        color = grey;
+    }
+    else if (iTargetSpeed > iCurrentSpeed) {
+        color = grey;
+    } else if (iTargetSpeed <= iCurrentSpeed) {
+        color = yellow;
+    }
 
     var iSpeedAsAngle = convertSpeedToAngle(options),
         iSpeedAsAngleRad = degToRad(iSpeedAsAngle),
@@ -437,13 +400,12 @@ function drawNeedle(options) {
         endNeedleY = gaugeOptions.radius - (Math.sin(iSpeedAsAngleRad) * gaugeOptions.radius),
         toX = (options.center.X - gaugeOptions.radius) + endNeedleX,
         toY = (gaugeOptions.center.Y - gaugeOptions.radius) + endNeedleY,
-        line = createLine(fromX, fromY, toX, toY, "rgb(255,0,0)", 5, 0.6);
+        line = createLine(fromX, fromY, toX, toY, color, 5, 1);
 
     drawLine(options, line);
-
     // Two circle to draw the dial at the base (give its a nice effect?)
-    drawNeedleDial(options, 0.6, "rgb(127, 127, 127)", "rgb(255,255,255)");
-    drawNeedleDial(options, 0.2, "rgb(127, 127, 127)", "rgb(127,127,127)");
+    drawNeedleDial(options, 1, color, color);
+    drawNeedleDial(options, 1, color, color);
 
 }
 
@@ -503,8 +465,6 @@ function draw() {
         // Draw speedometer outer speed arc
         drawSpeedometerOuterSpeedArc(options);
 
-        // Draw the metallic styled edge
-        drawMetallicArc(options);
 
         // Draw thw background
         drawBackground(options);
@@ -515,10 +475,6 @@ function draw() {
         // Draw labels on markers
         drawTextMarkers(options);
 
-        //Draw speedometer innner speed arc
-        drawSpeedometerInnerSpeedArc(options);
-
-
         // Draw the needle and base
         drawNeedle(options);
 
@@ -526,7 +482,7 @@ function draw() {
         alert("Canvas not supported by your browser!");
     }
 
-    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {//||((iTargetSpeed < iCurrentSpeed+0.2) &&(iTargetSpeed > iCurrentSpeed-0.2))){
+    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {
         clearTimeout(job);
         return;
     } else if (iTargetSpeed < iCurrentSpeed) {
