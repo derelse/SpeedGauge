@@ -462,12 +462,13 @@ function draw() {
 
         // Clear canvas
         clearCanvas(options);
+        drawBackground(options);
         // Draw speedometer outer speed arc
         drawSpeedometerOuterSpeedArc(options);
 
 
         // Draw thw background
-        drawBackground(options);
+
 
         // Draw tick marks
         drawTicks(options);
