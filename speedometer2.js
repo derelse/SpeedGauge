@@ -290,7 +290,7 @@ function drawSpeedometerOuterSpeedArc(options) {
         options.center.X,
         options.center.Y,
         options.radius - 10,
-        Math.PI,
+        Math.PI * 0.63,
         iTargetSpeedAsAngleRad - Math.PI,
         false);
 
