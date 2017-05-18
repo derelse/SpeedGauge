@@ -8,21 +8,31 @@
     // this function is strict...
 }());
 
-var iCurrentSpeed = 50,
-    iTargetSpeed = 20,
+var iCurrentSpeed = 250,
+    iTargetSpeed = 100,
     bDecrement = null,
     job = null;
+yellow = "rgb(244, 247, 74)";
+grey = "rgb(189,201,197)";
+color = grey;
 
 
 function degToRad(angle) {
     // Degrees to radians
-    return ((angle * Math.PI) / 180);
+
+    var rad = ((angle * Math.PI) / 180);
+    //shift the start so the open space is at the bottom
+    rad = rad - (Math.PI * (3 / 8));
+    return rad;
 }
 
 
 function radToDeg(angle) {
     // Radians to degree
-    return ((angle * 180) / Math.PI);
+    var degree = (angle * 180) / Math.PI;
+    //shift the start so the open space is at the bottom
+    degree = degree - (Math.PI * (3 / 8));
+    return degree;
 }
 
 function drawLine(options, line) {
@@ -110,7 +120,7 @@ function drawLargeTickMarks(options) {
     applyDefaultContextSettings(options);
 
     // Tick every 20 degrees (big ticks)
-    for (iTick = -65; iTick < 260; iTick += 30) {
+    for (iTick = 0; iTick <= 315; iTick += 45) {
 
         iTickRad = degToRad(iTick);
 
@@ -165,7 +175,7 @@ function drawSmallTickMarks(options) {
     tickvalue = options.levelRadius + 50;
 
     // 10 units (small ticks)
-    for (iTick = -65; iTick < 230; iTick += 6) {
+    for (iTick = 0; iTick <= 315; iTick += 9) {
 
         iTickRad = degToRad(iTick);
 
@@ -218,7 +228,7 @@ function drawTextMarkers(options) {
     applyDefaultContextSettings(options);
 
     // Font styling
-    options.ctx.fillStyle = "#F2FDFD";
+
     options.ctx.font = 'italic 16px sans-serif';
     options.ctx.textBaseline = 'top';
     options.ctx.strokeStyle = "#F2FDFD";
@@ -226,8 +236,8 @@ function drawTextMarkers(options) {
 
     options.ctx.beginPath();
 
-    // Tick every 20 (small ticks)
-    for (iTick = -65; iTick < 260; iTick += 30) {
+    // Tick every 45 (Big ticks)
+    for (iTick = 0; iTick <= 315; iTick += 45) {
 
         innerTickX = gaugeOptions.radius - (Math.cos(degToRad(iTick)) * gaugeOptions.radius) * 0.85;
         innerTickY = gaugeOptions.radius - (Math.sin(degToRad(iTick)) * gaugeOptions.radius) * 0.85;
@@ -253,7 +263,7 @@ function drawTextMarkers(options) {
                 (gaugeOptions.center.Y - gaugeOptions.radius) - 12 + innerTickY);
         }
 
-        // MPH increase by 10 every 20 degrees
+        // KMH increase by 50 every 45 degrees
         iTickToPrint += Math.round(50);
     }
 
@@ -263,25 +273,11 @@ function drawTextMarkers(options) {
 
 function drawSpeedometerOuterSpeedArc(options) {
 
-    // var green = "rgb(82, 240, 55)";
-    var yellow = "rgb(244, 247, 74)";
-    //  var red = "rgb(255, 0, 0)";
-    var grey = "rgb(189,201,197)";
-    var color = grey;
+
     var iTargetSpeedAsAngle = convertTargetSpeedToAngle();
-    var iTargetSpeedAsAngleRad = degToRad(iTargetSpeedAsAngle + 10);
-    // var iSpeedAsAngle = convertSpeedToAngle(options);
-    // var iSpeedAsAngleRad = degToRad(iSpeedAsAngle);
-
-    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {//||((iTargetSpeed < iCurrentSpeed+0.2) &&(iTargetSpeed > iCurrentSpeed-0.2))){
-        color = grey;
-    }
-    else if (iTargetSpeed > iCurrentSpeed) {
-        color = grey;
-    } else if (iTargetSpeed <= iCurrentSpeed) {
-        color = yellow;
-    }
-
+    //console.log("Target Speed Angle=" + iTargetSpeedAsAngle);
+    var iTargetSpeedAsAngleRad = degToRad(iTargetSpeedAsAngle);
+    //console.log("Target Speed Angle=" + iTargetSpeedAsAngleRad);
     options.ctx.beginPath();
     options.ctx.strokeStyle = color;
     options.ctx.lineWidth = 25;
@@ -290,8 +286,8 @@ function drawSpeedometerOuterSpeedArc(options) {
         options.center.X,
         options.center.Y,
         options.radius - 10,
-        Math.PI * 0.63,
-        iTargetSpeedAsAngleRad - Math.PI,
+        degToRad(180),                 //START
+        iTargetSpeedAsAngleRad - Math.PI,   //END
         false);
 
     // Fill the last object
@@ -305,9 +301,7 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
      * needle.
      */
     var i = 0;
-    var yellow = "rgb(244, 247, 74)";
-    var grey = "rgb(189,201,197)";
-    var color = grey;
+
 
 
     options.ctx.globalAlpha = alphaValue;
@@ -317,14 +311,6 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
 
     // Draw several transparent circles with alpha
 
-    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {
-        color = grey;
-    }
-    else if (iTargetSpeed > iCurrentSpeed) {
-        color = grey;
-    } else if (iTargetSpeed <= iCurrentSpeed) {
-        color = yellow;
-    }
 
     for (i = 0; i < 30; i++) {
 
@@ -333,7 +319,7 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
             options.center.Y,
             i,
             0,
-            Math.PI,
+            2 * Math.PI,
             true);
 
         options.ctx.fill();
@@ -341,53 +327,12 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
     }
 }
 
-function convertSpeedToAngle(options) {
-    /* Helper function to convert a speed to the
-     * equivelant angle.
-     */
-    var iSpeed = (options.speed / 10),
-        iSpeedAsAngle = ((iSpeed * 20) + 10) % 180;
-
-    // Ensure the angle is within range
-    if (iSpeedAsAngle > 180) {
-        iSpeedAsAngle = iSpeedAsAngle - 180;
-    } else if (iSpeedAsAngle < 0) {
-        iSpeedAsAngle = iSpeedAsAngle + 180;
-    }
-
-    return iSpeedAsAngle;
-}
-
-function convertTargetSpeedToAngle() {
-    var speed = (iTargetSpeed ),
-        speedAngle = (speed * 2) % 180;
-
-    //speed is doubled, so the division by 180 ends in a half circle
-    // make sure angle is in the upper half
-    if (speedAngle > 180) {
-        speedAngle = speedAngle - 180;
-    } else if (speedAngle < 0) {
-        speedAngle = speedAngle + 180;
-    }
-    return speedAngle;
-}
 
 function drawNeedle(options) {
     /* Draw the needle in a nice read colour at the
      * angle that represents the options.speed value.
      */
-    var yellow = "rgb(244, 247, 74)";
-    var grey = "rgb(189,201,197)";
-    var color = grey;
 
-    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {
-        color = grey;
-    }
-    else if (iTargetSpeed > iCurrentSpeed) {
-        color = grey;
-    } else if (iTargetSpeed <= iCurrentSpeed) {
-        color = yellow;
-    }
 
     var iSpeedAsAngle = convertSpeedToAngle(options),
         iSpeedAsAngleRad = degToRad(iSpeedAsAngle),
@@ -439,6 +384,43 @@ function buildOptionsAsJSON(canvas, iSpeed) {
     };
 }
 
+
+function convertSpeedToAngle(options) {
+    /* Helper function to convert a speed to the
+     * equivelant angle.
+     */
+    var iSpeed = (options.speed);
+    var iSpeedAsAngle;
+
+    iSpeedAsAngle = (iSpeed * 0.9);
+
+    return iSpeedAsAngle;
+}
+
+function convertTargetSpeedToAngle() {
+    var targetSpeed = (iTargetSpeed );
+    var iTargetSpeedAsAngle;
+
+
+    iTargetSpeedAsAngle = (targetSpeed * 0.9);
+
+    return iTargetSpeedAsAngle;
+
+}
+
+
+function drawSpeedBox(options) {
+
+    var startX = options.center.X - 35,
+        starty = options.center.Y + 150;
+
+
+    options.ctx.font = 'bold 36px sans-serif';
+    options.ctx.fillStyle = color;
+    options.ctx.fillText(Math.round(iCurrentSpeed), startX, starty);
+
+}
+
 function clearCanvas(options) {
     options.ctx.clearRect(0, 0, 800, 600);
     applyDefaultContextSettings(options);
@@ -449,12 +431,13 @@ function draw() {
      * If canvas is not support alert the user.
      */
 
-    console.log('Target: ' + iTargetSpeed);
-    console.log('Current: ' + iCurrentSpeed);
-    document.getElementById('currentSpeed').innerHTML = Math.round(iCurrentSpeed) * 5;
-    document.getElementById('targetSpeed').innerHTML = Math.round(iTargetSpeed) * 5;
+    //console.log('Target: ' + iTargetSpeed);
+    //console.log('Current: ' + iCurrentSpeed);
+    document.getElementById('currentSpeed').innerHTML = Math.round(iCurrentSpeed);
+    document.getElementById('targetSpeed').innerHTML = Math.round(iTargetSpeed);
     var canvas = document.getElementById('tacho'),
         options = null;
+
 
     // Canvas good?
     if (canvas !== null && canvas.getContext) {
@@ -462,29 +445,31 @@ function draw() {
 
         // Clear canvas
         clearCanvas(options);
+
+        //draw Background box
         drawBackground(options);
+        //set the color to yellow or grey
+        checkSpeed();
         // Draw speedometer outer speed arc
         drawSpeedometerOuterSpeedArc(options);
-
-
-        // Draw thw background
-
 
         // Draw tick marks
         drawTicks(options);
 
         // Draw labels on markers
         drawTextMarkers(options);
-
         // Draw the needle and base
         drawNeedle(options);
+        //draw the current speed in numbers
+        drawSpeedBox(options);
 
     } else {
         alert("Canvas not supported by your browser!");
     }
 
-    if ((iTargetSpeed == Math.round(iCurrentSpeed))) {
+    if (iTargetSpeed == Math.round(iCurrentSpeed)) {
         clearTimeout(job);
+
         return;
     } else if (iTargetSpeed < iCurrentSpeed) {
         bDecrement = true;
@@ -498,7 +483,17 @@ function draw() {
         iCurrentSpeed = iCurrentSpeed + 0.1;
     }
 
-    job = setTimeout("draw()", 5);
+    job = setTimeout("draw()", 10);
+}
+function checkSpeed() {
+    //-1 to escape edge case where CurrentSpeed comes from above and it somehow doesn't reset to grey
+    var cSpeed = iCurrentSpeed;
+    cSpeed = cSpeed - 1;
+    if ((cSpeed) > (iTargetSpeed)) {
+        color = yellow;
+    } else {
+        (color = grey);
+    }
 }
 
 function drawWithInputValue() {
@@ -507,19 +502,19 @@ function drawWithInputValue() {
     var txtSpeed = document.getElementById('txtTargetSpeed');
 
     if (txtSpeed !== null) {
-        //divided by 5 to get the percentages
-        iTargetSpeed = Math.round(txtSpeed.value / 5);
+
+        iTargetSpeed = txtSpeed.value;
 
         // Sanity checks
         if (isNaN(iTargetSpeed)) {
             iTargetSpeed = 0;
         } else if (iTargetSpeed < 0) {
             iTargetSpeed = 0;
-        } else if (iTargetSpeed > 80) {
-            iTargetSpeed = 80;
+        } else if (iTargetSpeed > 350) {
+            iTargetSpeed = 350;
         }
 
-        job = setTimeout("draw()", 5);
+        job = setTimeout("draw()", 10);
 
     }
 }
@@ -530,19 +525,19 @@ function setCurrentSpeed() {
     var txtSpeed = document.getElementById('txtCurrentSpeed');
 
     if (txtSpeed !== null) {
-        //divided by 5 to get the percentages
-        iCurrentSpeed = Math.round(txtSpeed.value / 5);
+
+        iCurrentSpeed = txtSpeed.value;
 
         // Sanity checks
         if (isNaN(iCurrentSpeed)) {
-            iCurrentSpeed = 0;
+            iCurrentSpeed = 1;
         } else if (iCurrentSpeed < 0) {
-            iCurrentSpeed = 0;
-        } else if (iCurrentSpeed > 80) {
-            iCurrentSpeed = 80;
+            iCurrentSpeed = 1;
+        } else if (iCurrentSpeed > 350) {
+            iCurrentSpeed = 350;
         }
 
-        job = setTimeout("draw()", 5);
+        job = setTimeout("draw()", 10);
 
     }
 }
