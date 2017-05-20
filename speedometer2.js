@@ -275,9 +275,10 @@ function drawSpeedometerOuterSpeedArc(options) {
 
 
     var iTargetSpeedAsAngle = convertTargetSpeedToAngle();
-    //console.log("Target Speed Angle=" + iTargetSpeedAsAngle);
     var iTargetSpeedAsAngleRad = degToRad(iTargetSpeedAsAngle);
-    //console.log("Target Speed Angle=" + iTargetSpeedAsAngleRad);
+    var iCurrentSpeedAsAngle = convertSpeedToAngle();
+    var iCurrentSpeedAsAngleRad = degToRad(iCurrentSpeedAsAngle);
+
     options.ctx.beginPath();
     options.ctx.strokeStyle = color;
     options.ctx.lineWidth = 25;
@@ -293,7 +294,24 @@ function drawSpeedometerOuterSpeedArc(options) {
     // Fill the last object
     options.ctx.stroke();
 
+    if (iCurrentSpeed > iTargetSpeed){
+        options.ctx.beginPath();
+        options.ctx.strokeStyle =  "rgb(255, 0, 0)";
+
+        options.ctx.arc(
+            options.center.X,
+            options.center.Y,
+            options.radius - 10,
+            iTargetSpeedAsAngleRad - Math.PI,  //START
+            iCurrentSpeedAsAngleRad - Math.PI,      //END
+            false);
+        options.ctx.stroke();
+    }
+
+
 }
+
+
 
 
 function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
@@ -312,7 +330,7 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
     // Draw several transparent circles with alpha
 
 
-    for (i = 0; i < 30; i++) {
+    for (i = 0; i < 35; i++) {
 
         options.ctx.beginPath();
         options.ctx.arc(options.center.X,
@@ -354,6 +372,28 @@ function drawNeedle(options) {
 
 }
 
+function drawSpeedBox(options) {
+
+    var startX = options.center.X -28 ,
+        starty = options.center.Y -20,
+        roundedSpeed = Math.round(iCurrentSpeed),
+        speedAsString = roundedSpeed.toString();
+
+
+    options.ctx.font = 'bold 36px sans-serif';
+    options.ctx.fillStyle = "rgb(0, 0, 0)";
+
+    if (roundedSpeed <100 && roundedSpeed >=10){
+        speedAsString = "0" + speedAsString;
+    }
+    else if (roundedSpeed < 10){
+        speedAsString = "00"+speedAsString;
+    }
+
+    options.ctx.fillText(speedAsString, startX, starty);
+
+}
+
 function buildOptionsAsJSON(canvas, iSpeed) {
     /* Setting for the speedometer
      * Alter these to modify its look and feel
@@ -389,7 +429,7 @@ function convertSpeedToAngle(options) {
     /* Helper function to convert a speed to the
      * equivelant angle.
      */
-    var iSpeed = (options.speed);
+    var iSpeed = (iCurrentSpeed);
     var iSpeedAsAngle;
 
     iSpeedAsAngle = (iSpeed * 0.9);
@@ -409,17 +449,7 @@ function convertTargetSpeedToAngle() {
 }
 
 
-function drawSpeedBox(options) {
 
-    var startX = options.center.X - 35,
-        starty = options.center.Y + 150;
-
-
-    options.ctx.font = 'bold 36px sans-serif';
-    options.ctx.fillStyle = color;
-    options.ctx.fillText(Math.round(iCurrentSpeed), startX, starty);
-
-}
 
 function clearCanvas(options) {
     options.ctx.clearRect(0, 0, 800, 600);
