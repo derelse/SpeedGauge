@@ -11,10 +11,12 @@
 var iCurrentSpeed = 250,
     iTargetSpeed = 100,
     bDecrement = null,
-    job = null;
-yellow = "rgb(244, 247, 74)";
-grey = "rgb(189,201,197)";
-color = grey;
+    job = null,
+    red = "rgb(255,0,0)",
+    yellow = "rgb(244, 247, 74)",
+    grey = "rgb(189,201,197)",
+    color = grey,
+    tooFast = false;
 
 
 function degToRad(angle) {
@@ -296,7 +298,7 @@ function drawSpeedometerOuterSpeedArc(options) {
 
     if (iCurrentSpeed > iTargetSpeed){
         options.ctx.beginPath();
-        options.ctx.strokeStyle =  "rgb(255, 0, 0)";
+        options.ctx.strokeStyle = red;
 
         options.ctx.arc(
             options.center.X,
@@ -312,9 +314,7 @@ function drawSpeedometerOuterSpeedArc(options) {
 }
 
 
-
-
-function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
+function drawNeedleDial(options, alphaValue, fillStyle) {
     /* Draws the metallic dial that covers the base of the
      * needle.
      */
@@ -324,7 +324,6 @@ function drawNeedleDial(options, alphaValue, strokeStyle, fillStyle) {
 
     options.ctx.globalAlpha = alphaValue;
     options.ctx.lineWidth = 3;
-    options.ctx.strokeStyle = strokeStyle;
     options.ctx.fillStyle = fillStyle;
 
     // Draw several transparent circles with alpha
@@ -351,7 +350,7 @@ function drawNeedle(options) {
      * angle that represents the options.speed value.
      */
 
-
+    var needleColor = color;
     var iSpeedAsAngle = convertSpeedToAngle(options),
         iSpeedAsAngleRad = degToRad(iSpeedAsAngle),
         gaugeOptions = options.gaugeOptions,
@@ -362,13 +361,17 @@ function drawNeedle(options) {
         endNeedleX = gaugeOptions.radius - (Math.cos(iSpeedAsAngleRad) * gaugeOptions.radius),
         endNeedleY = gaugeOptions.radius - (Math.sin(iSpeedAsAngleRad) * gaugeOptions.radius),
         toX = (options.center.X - gaugeOptions.radius) + endNeedleX,
-        toY = (gaugeOptions.center.Y - gaugeOptions.radius) + endNeedleY,
-        line = createLine(fromX, fromY, toX, toY, color, 5, 1);
+        toY = (gaugeOptions.center.Y - gaugeOptions.radius) + endNeedleY;
+
+    if (tooFast == true) {
+        needleColor = red;
+    }
+    var line = createLine(fromX, fromY, toX, toY, needleColor, 5, 1);
 
     drawLine(options, line);
     // Two circle to draw the dial at the base (give its a nice effect?)
-    drawNeedleDial(options, 1, color, color);
-    drawNeedleDial(options, 1, color, color);
+    drawNeedleDial(options, 1, needleColor);
+
 
 }
 
@@ -479,7 +482,7 @@ function draw() {
         //draw Background box
         drawBackground(options);
         //set the color to yellow or grey
-        checkSpeed();
+        checkSpeed(options);
         // Draw speedometer outer speed arc
         drawSpeedometerOuterSpeedArc(options);
 
@@ -513,7 +516,7 @@ function draw() {
         iCurrentSpeed = iCurrentSpeed + 0.1;
     }
 
-    job = setTimeout("draw()", 10);
+    job = setTimeout("draw()", 5);
 }
 function checkSpeed() {
     //-1 to escape edge case where CurrentSpeed comes from above and it somehow doesn't reset to grey
@@ -521,8 +524,10 @@ function checkSpeed() {
     cSpeed = cSpeed - 1;
     if ((cSpeed) > (iTargetSpeed)) {
         color = yellow;
+        tooFast = true;
     } else {
-        (color = grey);
+        color = grey;
+        tooFast = false;
     }
 }
 
@@ -544,7 +549,7 @@ function drawWithInputValue() {
             iTargetSpeed = 350;
         }
 
-        job = setTimeout("draw()", 10);
+        job = setTimeout("draw()", 5);
 
     }
 }
@@ -567,7 +572,7 @@ function setCurrentSpeed() {
             iCurrentSpeed = 350;
         }
 
-        job = setTimeout("draw()", 10);
+        job = setTimeout("draw()", 5);
 
     }
 }
