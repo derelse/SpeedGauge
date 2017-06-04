@@ -542,8 +542,8 @@ function setCurrentSpeed() {
 
 
 function changeTrack() {
-
-    var id = document.getElementById("toID").valueOf();
+    var from_id = 1;
+    var to_id = document.getElementById("toID").valueOf();
     if (window.XMLHttpRequest) {
         // code for IE7+, Firefox, Chrome, Opera, Safari
         xmlhttp = new XMLHttpRequest();
@@ -557,7 +557,7 @@ function changeTrack() {
             // document.getElementById("txtTargetSpeed").innerHTML = xmlhttp.responseText;
         }
     };
-    xmlhttp.open("GET", "functions.php?id=" + id, true);
+    xmlhttp.open("GET", "functions.php?to_id=" + to_id + "&from_id=" + from_id, true);
     xmlhttp.send();
 
 }
