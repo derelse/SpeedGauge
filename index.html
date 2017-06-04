@@ -1,11 +1,16 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 	<meta charset="utf-8"/>
 	<title>Speedometer</title>
     <script src="speedometer2.js" type="text/javascript"></script>
+
 </head>
+
+
 <body onload='draw(0);'>
+
 <canvas id="tacho" width="500" height="500">
 	Canvas not available.
 </canvas>
@@ -28,10 +33,23 @@
 	<form>
 		<label>Target Speed:</label>
         <input type="text" id="txtTargetSpeed" name="txtSpeed" maxlength="3"/>
-		<input type="button" value="Draw" onclick="drawWithInputValue();">
+		<input type="button" value="Draw" onclick="setTargetSpeed();">
 	</form>
+</div>
+<div>
 
-
+</div>
+<div>
+	<form>
+		<label>From Balise_ID:</label>
+		<input type="number" id="fromID" name="fromID" maxlength="3"/>
+		<input type="button" value="Draw" onclick="">
+	</form>
+	<form>
+		<label>To Balise_ID:</label>
+		<input type="number" id="toID" name="toID" maxlength="3"/>
+		<input type="button" value="Draw" onclick="changeTrack()" )>
+	</form>
 </div>
 </body>
 </html>
