@@ -33,23 +33,32 @@
 	<form>
 		<label>Target Speed:</label>
         <input type="text" id="txtTargetSpeed" name="txtSpeed" maxlength="3"/>
-		<input type="button" value="Draw" onclick="setTargetSpeed();">
+		<input type="button" value="Draw" onclick="setTargetSpeed(document.getElementById('txtTargetSpeed'))">
 	</form>
 </div>
 <div>
+</div>
 
-</div>
-<div>
 	<form>
-		<label>From Balise_ID:</label>
-		<input type="number" id="fromID" name="fromID" maxlength="3"/>
-		<input type="button" value="Draw" onclick="">
+
+		<input type="button" value="nächster Abschnitt" onclick="advance()" )>
 	</form>
-	<form>
-		<label>To Balise_ID:</label>
-		<input type="number" id="toID" name="toID" maxlength="3"/>
-		<input type="button" value="Draw" onclick="changeTrack()" )>
-	</form>
-</div>
+
+
+<p>Welche Route soll gefahren werden?</p>
+<p id="currentRoute">Aktuelle Route: 1</p>
+
+<form>
+	<input type="radio" id="route1" name="route" value="1" checked="true">Route 1<br>
+	<input type="radio" id="route2" name="route" value="2">Route 2<br>
+	<input type="radio" id="route3" name="route" value="2">Route 3<br>
+	<br>
+	<input type="button" onclick="setRoute()" value="Route umschalten">
+</form>
+
+
+<p id="currentTrack">Aktueller Track: 1</p>
+<p id="nextTrack">Nächster Track: 2</p>
+
 </body>
 </html>

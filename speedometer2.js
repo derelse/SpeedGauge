@@ -11,6 +11,9 @@ var iCurrentSpeed = 150,
     yellow = "rgb(244, 247, 74)",
     grey = "rgb(189,201,197)",
     color = grey,
+    route = 1,
+    currentTrack = 1,
+    nextTrack = 2,
     tooFast = false;
 
 function draw() {
@@ -508,10 +511,10 @@ function checkSpeed() {
     }
 }
 
-function setTargetSpeed() {
-    var txtSpeed = document.getElementById('txtTargetSpeed'.valueOf());
-    if (txtSpeed !== null) {
-        iTargetSpeed = txtSpeed.value;
+function setTargetSpeed(target) {
+
+    if (target !== null) {
+        iTargetSpeed = target;
         // Sanity checks
         if (isNaN(iTargetSpeed)) {
             iTargetSpeed = 0;
@@ -541,9 +544,22 @@ function setCurrentSpeed() {
 }
 
 
+function advance() {
+    changeTrack();
+    currentTrack = nextTrack;
+    getNextTrack();
+
+}
 function changeTrack() {
-    var from_id = 1;
-    var to_id = document.getElementById("toID").valueOf();
+
+    var fromID = currentTrack;
+    var toID = nextTrack;
+
+
+    document.getElementById('currentTrack').innerHTML = "Aktueller Track: " + fromID;
+    document.getElementById('nextTrack').innerHTML = "Nächster Track: " + toID;
+
+
     if (window.XMLHttpRequest) {
         // code for IE7+, Firefox, Chrome, Opera, Safari
         xmlhttp = new XMLHttpRequest();
@@ -553,17 +569,81 @@ function changeTrack() {
     }
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            alert(xmlhttp.responseText);
-            // document.getElementById("txtTargetSpeed").innerHTML = xmlhttp.responseText;
+
+            setTargetSpeed(xmlhttp.responseText.valueOf());
+            //document.getElementById("txtTargetSpeed").innerHTML = xmlhttp.responseText;
         }
     };
-    xmlhttp.open("GET", "functions.php?to_id=" + to_id + "&from_id=" + from_id, true);
+    xmlhttp.open("GET", "getTargetSpeed.php?from_id=" + fromID + "&to_id=" + toID, true);
     xmlhttp.send();
 
 }
 
 
+function getNextTrack() {
 
+    var cur = currentTrack;
+    var tempRoute = route;
+    //get next track based on current Track and current Route
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            setNextTrack(xhttp.responseText);
+
+            //document.getElementById("txtTargetSpeed").innerHTML = xmlhttp.responseText;
+        }
+    };
+
+    xhttp.open("GET", "getNext.php?id=" + cur + "&route=" + tempRoute, true);
+    xhttp.send();
+
+}
+function setCurrentTrack(id) {
+    currentTrack = id;
+}
+function setNextTrack(id) {
+    nextTrack = id;
+}
+
+
+function setRoute() {
+
+    //switch between teh routes
+    //init needed variables
+
+    if (document.getElementById('route1').checked) {
+
+        route = 1;
+        currentTrack = 1;
+        nextTrack = 2
+
+        document.getElementById('currentRoute').innerHTML = "Aktuelle Route: 1";
+    }
+    else if (document.getElementById('route2').checked) {
+
+        route = 2;
+        currentTrack = 1;
+        nextTrack = 2
+
+        document.getElementById('currentRoute').innerHTML = "Aktuelle Route: 2";
+    }
+    else if (document.getElementById('route3').checked) {
+
+        route = 3;
+        currentTrack = 9;
+        nextTrack = 10;
+
+        document.getElementById('currentRoute').innerHTML = "Aktuelle Route: 3";
+    }
+    ;
+
+}
 
 
 

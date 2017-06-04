@@ -18,7 +18,7 @@ $sql = "SELECT speed FROM rbc.speed WHERE from_id='" . $from_id . "' AND to_id =
 $result = mysqli_query($con, $sql);
 $row = mysqli_fetch_assoc($result);
 
-echo $row["speed"];
+echo $row['speed'];
 
 mysqli_close($con);
 
